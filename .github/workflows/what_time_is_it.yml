@@ -5,4 +5,4 @@ jobs:
   what_time_is_it:
     runs-on: ubuntu-latest
     steps:
-      -run: date
+      - run: date
