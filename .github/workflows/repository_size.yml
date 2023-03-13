@@ -8,4 +8,5 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: ''
-      - run: du -skh --exclude=".git" 
+      - run: echo ${GITHUB_REF##*/}
+      - run: du -skh --exclude=".git"
