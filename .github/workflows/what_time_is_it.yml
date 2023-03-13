@@ -1,7 +1,7 @@
 name: what_time_is_it
 run-name: ${{ github.actor }} asking for date
-on: [job]
-job:
+on: [push]
+jobs:
   what_time_is_it:
     runs-on: ubuntu-latest
     steps:
