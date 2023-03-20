@@ -11,7 +11,7 @@ PUSHSWAP_DIR = push_swap/
 ANTMAN_DIR = antman/
 GIANTMAN_DIR = giantman/
 MYSH_DIR = mysh/
-BSQ_DIR = ../bsq/B-CPE-110-BDX-1-1-BSQ-tom.bouisset/
+BSQ_DIR = ../B-CPE-110-BDX-1-1-BSQ-tom.bouisset/
 
 # Rules
 all: $(BSQ_EXEC)
