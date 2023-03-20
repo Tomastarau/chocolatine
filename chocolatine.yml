@@ -46,17 +46,16 @@ jobs:
             console.log(Array.from(files).join('\n'));
       - name: Fail if there are errors
         if: always()
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const response = await github.rest.checks.listSuitesForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.sha
-            });
-            const conclusion = response.data.check_suite.conclusion;
-            if (conclusion !== 'success') {
-              core.setFailed('Coding style check failed');
+        run: |
+          const response = await github.rest.checks.listSuitesForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha
+          });
+          const conclusion = response.data.check_suite.conclusion;
+          if (conclusion !== 'success') {
+            process.exit(1);
+          }
 
   check_program_compilation:
     runs-on: ubuntu-latest
@@ -101,7 +100,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known
           ssh-keyscan -t rsa ${{ env.MIRROR_URL }} >> ~/.ssh/known_hosts
       - name: Mirror to repository
         uses: pixta-dev/repository-mirroring-action@v1.0.0
