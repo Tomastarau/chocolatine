@@ -1,0 +1,110 @@
+name: Chocolatine Workflow
+on:
+  push:
+    branches-ignore:
+      - 'ga-ignore-*'
+  pull_request:
+    branches-ignore:
+      - 'ga-ignore-*'
+
+env:
+  MIRROR_URL: git@github.com:EpitechPromo2027/B-DOP-200-BDX-2-1-chocolatine-tom.bouisset.git
+  EXECUTABLES: pushswap,antman/antman,giantman/giantman,mysh,bsq
+
+jobs:
+  check_coding_style:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check coding style
+        run: check.sh $(pwd) $(pwd)
+      - name: Display errors as annotations
+        if: always()
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const response = await github.rest.checks.listSuitesForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha
+            });
+            const annotations = response.data.check_suite.suites[0].annotations;
+            if (annotations.length === 0) {
+              return;
+            }
+            const files = new Set();
+            annotations.forEach(annotation => {
+              files.add(annotation.path);
+              const start_line = annotation.start_line || 1;
+              const end_line = annotation.end_line || start_line;
+              console.log(`::error file=${annotation.path},line=${start_line},endLine=${end_line}::${annotation.message}`);
+            });
+            console.log(`Errors found in ${annotations.length} file(s):`);
+            console.log(Array.from(files).join('\n'));
+      - name: Fail if there are errors
+        if: always()
+        run: |
+          const response = await github.rest.checks.listSuitesForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha
+          });
+          const conclusion = response.data.check_suite.conclusion;
+          if (conclusion !== 'success') {
+            process.exit(1);
+          }
+
+  check_program_compilation:
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Compile program
+        run: make
+      - name: Clean program
+        run: make clean
+      - name: Verify executables
+        run: |
+          for executable in $(echo $EXECUTABLES | tr ',' ' '); do
+            if [ ! -x "$executable" ]; then
+              echo "Executable $executable not found or not executable"
+              exit 1
+            fi
+          done
+
+  run_tests:
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run tests
+        run: make tests_run
+
+  push_to_mirror:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known
+          ssh-keyscan -t rsa ${{ env.MIRROR_URL }} >> ~/.ssh/known_hosts
+      - name: Mirror to repository
+        uses: pixta-dev/repository-mirroring-action@v1.0.0
+        with:
+          mirror-url: ${{ env.MIRROR_URL }}
+          ssh-private-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+
