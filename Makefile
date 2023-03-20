@@ -17,7 +17,7 @@ BSQ_DIR = ../B-CPE-110-BDX-1-1-BSQ-tom.bouisset/
 all: $(BSQ_EXEC)
 
 $(BSQ_EXEC):
-	$(MAKE) -C $(BSQ_DIR) $(BSQ_EXEC)
+	$(MAKE) -C $(BSQ_DIR)
 
 clean:
 	$(MAKE) -C $(BSQ_DIR) clean
