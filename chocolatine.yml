@@ -26,36 +26,23 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const response = await github.rest.checks.listSuitesForRef({
+            const response = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: context.sha
             });
-            const annotations = response.data.check_suite.suites[0].annotations;
-            if (annotations.length === 0) {
-              return;
-            }
-            const files = new Set();
-            annotations.forEach(annotation => {
-              files.add(annotation.path);
-              const start_line = annotation.start_line || 1;
-              const end_line = annotation.end_line || start_line;
-              console.log(`::error file=${annotation.path},line=${start_line},endLine=${end_line}::${annotation.message}`);
-            });
-            console.log(`Errors found in ${annotations.length} file(s):`);
-            console.log(Array.from(files).join('\n'));
-      - name: Fail if there are errors
+            const checkSuites = response.data.check
+      - name: Display errors as annotations
         if: always()
-        run: |
-          const response = await github.rest.checks.listSuitesForRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: context.sha
-          });
-          const conclusion = response.data.check_suite.conclusion;
-          if (conclusion !== 'success') {
-            process.exit(1);
-          }
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const response = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha
+            });
+            const checkSuites = response.data.check
 
   check_program_compilation:
     runs-on: ubuntu-latest
