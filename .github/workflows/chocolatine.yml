@@ -60,7 +60,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: epitechcontent/epitest-docker
-    needs: check_program_compilation
 
     steps:
     - name: Checkout repository
