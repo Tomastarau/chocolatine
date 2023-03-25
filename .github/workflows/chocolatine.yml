@@ -56,4 +56,17 @@ jobs:
           fi
         done
 
+  run_tests:
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    needs: check_program_compilation
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run tests with 2 minutes timeout
+      run: timeout 2m make tests_run
+
           
