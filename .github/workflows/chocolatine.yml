@@ -6,6 +6,26 @@ on:
       - main
 
 jobs:
+  check_coding_style:
+      runs-on: ubuntu-latest
+      container:
+        image: ghcr.io/epitech/coding-style-checker:latest
+
+      steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run coding style checker
+        run: |
+          check.sh $(pwd) $(pwd) 2>&1 | tee coding_style_errors.txt
+          echo "::set-output name=number_of_errors::$(grep -c 'Error' coding_style_errors.txt)"
+          cat coding_style_errors.txt | awk -F: '/Error/ { print "::error file=" $1 ",line=" $2 ",col=" $3 "::" $4 }'
+        id: check_coding_style_output
+
+      - name: Fail if there are any coding style errors
+        if: steps.check_coding_style_output.outputs.number_of_errors > 0
+        run: exit 1
+
   run-make-command:
     runs-on: ubuntu-latest
 
