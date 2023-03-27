@@ -22,7 +22,7 @@ jobs:
     - name: Run coding style checker
       id: check_coding_style_output
       run: |
-        check.sh $(pwd) $(pwd) 2>&1 | tee coding_style_reports.log
+        check.sh $(pwd) $(pwd) > coding_style_reports.log 2>&1
         echo "::set-output name=number_of_errors::$(grep -c 'Error' coding_style_reports.log)"
         cat coding_style_reports.log
 
