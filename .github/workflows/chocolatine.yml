@@ -74,13 +74,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-          ssh-keyscan -t rsa ${{ env.MIRROR_URL }} >> ~/.ssh/known_hosts
       - name: Mirror to repository
         uses: pixta-dev/repository-mirroring-action@v1.0.0
         with:
