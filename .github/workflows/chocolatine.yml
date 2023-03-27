@@ -70,12 +70,13 @@ jobs:
 
   push_to_mirror:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Mirror to repository
-        uses: pixta-dev/repository-mirroring-action@v1.0.0
+      - uses: actions/checkout@v3
         with:
-          mirror-url: ${{ env.MIRROR_URL }}
-          ssh-private-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@github.com:EpitechPromo2027/B-DOP-200-BDX-2-1-chocolatine-tom.bouisset.git
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}
