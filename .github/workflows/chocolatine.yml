@@ -21,9 +21,8 @@ jobs:
 
       - name: Run coding style checker
         run: |
-          check.sh $(pwd) $(pwd) 2>&1 | tee coding_style_errors.txt
-          echo "::set-output name=number_of_errors::$(grep -c 'Error' coding_style_errors.txt)"
-          cat coding_style_errors.txt | awk -F: '/Error/ { print "::error file=" $1 ",line=" $2 ",col=" $3 "::" $4 }'
+          check.sh $(pwd) $(pwd) 2>&1 | tee coding_style_reports.log
+          cat coding_style_reports.log
         id: check_coding_style_output
 
       - name: Fail if there are any coding style errors
@@ -77,6 +76,6 @@ jobs:
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
           target_repo_url:
-            git@github.com:EpitechPromo2027/B-DOP-200-BDX-2-1-chocolatine-tom.bouisset.git
+            MIRROR_URL
           ssh_private_key:
             ${{ secrets.GIT_SSH_PRIVATE_KEY }}
